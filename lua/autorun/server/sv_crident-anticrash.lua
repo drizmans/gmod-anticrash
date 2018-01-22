@@ -240,10 +240,7 @@ hook.Add( "CanTool", "HPP.CanTool", function( ply, tr, tool ) -- Stop people fuc
 		(tool == 'advdupe2' and ply.AdvDupe2 and ply.AdvDupe2.Entities) or
 		(tool == 'duplicator' and ply.CurrentDupe and ply.CurrentDupe.Entities)
 
-	if dupetab and ( levelup.getLevel( ply ) < 2 ) then
-		aprint(Color(255,0,0), "Precision | ", ply, "You must be level 2 before you can use advanced dupe!")
-		return false
-	elseif dupetab then
+	if dupetab then
 		for k, v in pairs(dupetab) do
 			if !v.ModelScale then return end
 			if v.ModelScale > 10 then
