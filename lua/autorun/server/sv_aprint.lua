@@ -2,7 +2,7 @@
 	Aero Print:
 	My chat print lib, keeps things consistent and reduces the amount of net messages.
 ]]--
-if aprint then Error("CSit System: aprint function already exists. Report this error to drizzy.vip") return end
+if aprint then Error("Crident Anti-Crash might not work as expected; aprint already exists. You can probably ignore this.") return end
 util.AddNetworkString("aprint")
 
 local function addText(col, str1, ply, str)
