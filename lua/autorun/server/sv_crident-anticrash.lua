@@ -242,7 +242,7 @@ hook.Add( "CanTool", "HPP.CanTool", function( ply, tr, tool ) -- Stop people fuc
 
 	if dupetab then
 		for k, v in pairs(dupetab) do
-			if !v.ModelScale then return end
+			if !v.ModelScale then continue end
 			if v.ModelScale > 10 then
 				return false
 			end
