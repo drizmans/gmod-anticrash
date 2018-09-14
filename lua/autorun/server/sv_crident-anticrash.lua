@@ -16,7 +16,7 @@ HPP.Entity = FindMetaTable("Entity")
 HPP.Phys = FindMetaTable("PhysObj")
 HPP.Player = FindMetaTable("Player")
 
-local modelBlacklist = {
+local modelBlacklist = { -- Thanks to Hexa for this
 	["models/props_vehicles/tanker001a.mdl"] = true,
 	["models/props_vehicles/apc001.mdl"] = true,
 	["models/props_combine/combinetower001.mdl"] = true,
@@ -171,6 +171,51 @@ local function PlayerSpawnProp(ply, model)
 end
 hook.Add("PlayerSpawnProp", "propshit", PlayerSpawnProp)
 
+--[[
+	<-- Functions -->
+]]--
+
+-- Entity based
+function HPP.Ghost(self) -- Ghosting the entities
+	if self.ghosted then return end
+	if self:IsPlayer() then return end
+
+	local col = self:GetColor()
+
+	if col.a ~= 245 then
+		self.oldColor = self:GetColor()
+	end
+	if self:GetClass() == "prop_physics" and self:GetRenderMode() ~= RENDERMODE_TRANSALPHA then
+		self:SetRenderMode( RENDERMODE_TRANSALPHA )
+	end
+
+	self:SetCollisionGroup( COLLISION_GROUP_PASSABLE_DOOR )
+	self:SetColor(Color(col.r, col.g, col.b, 245))
+	self.ghosted = true
+end
+function HPP.Unghost(self) -- Unghosting the entities
+	if not self.ghosted then return end
+	if self:IsPlayer() then return end
+
+	if self.oldColor then
+		self:SetColor(self.oldColor)
+	end
+	self:SetCollisionGroup(COLLISION_GROUP_NONE)
+	self.ghosted = false
+end
+function HPP.CanUnghost(self)
+	local PObj = self:GetPhysicsObject()
+
+	if IsValid(PObj) and !self:IsVehicle() then
+		for k, v in pairs(ents.FindInSphere(self:GetPos(), PObj:GetVolume() / 10000 + 20 ) ) do
+			if v:IsPlayer() then
+				return false
+			end
+		end
+	end
+	return true
+end
+
 -- Server is lagging a bit, try to reduce that
 function HPP.DeLag()
     if aprint then
@@ -203,6 +248,25 @@ function HPP.StopLag()
 
 	end
 end
+
+--[[
+	<-- Meta-Functions -->
+]]--
+
+-- Entity meta funcs
+function HPP.Entity:Ghost()
+	return HPP.Ghost(self)
+end
+function HPP.Entity:Unghost()
+	return HPP.Ghost(self)
+end
+function HPP.Entity:GetPlayerOwner()
+	return HPP.GetPlayerOwner(self)
+end
+
+--[[
+	<-- Hooking into what we need -->
+]]--
 
 hook.Add("OnPhysgunReload","HPP.OnPhysgunReload",function(_, ply)
     return false
@@ -262,6 +326,23 @@ hook.Add("ShouldCollide", "HPP.ShouldCollide" , function(e1 , e2) -- Stop shit c
     if HPP.ExtraEnts[e1:GetClass()] and HPP.ExtraEnts[e2:GetClass()] then
         return false
     end
+end)
+
+hook.Add( "PhysgunPickup", "HPP.PhysgunPickup", function( ply, ent )
+	if ent:IsPlayer() then return end
+	local cantouch, owner = HPP.CanTouchEnt(ent, ply)
+	if cantouch and owner then
+		HPP.Ghost(ent)
+		if ent:IsConstrained() then
+			local tbl = constraint.GetAllConstrainedEntities(ent)
+			for k, v in pairs(tbl) do
+				if ent == k then continue end
+				HPP.Ghost(k)
+			end
+		end
+	else
+		return false
+	end
 end)
 
 --[[
