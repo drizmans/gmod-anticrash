@@ -314,10 +314,21 @@ hook.Add( "CanTool", "HPP.CanTool", function( ply, tr, tool ) -- Stop people fuc
 			v.ModelScale = 1
 		end
 	end
+
+	if tool:lower() == "material" then -- blackscreen exploit
+        local tool = ply:GetActiveWeapon():GetToolObject()
+        if string.lower(tool:GetClientInfo("override")) == "pp/copy" then
+            return false
+        end
+    end
 end)
 
 -- Code below this stops collisions
 hook.Add("PlayerSpawnedProp", "HPP.PlayerSpawnedProp", function(ply, _, ent)
+	if string.lower(ent:GetMaterial()) == "pp/copy" then -- blackscreen exploit
+        ent:Remove()
+    end
+
 	ent:SetCustomCollisionCheck(true)
 	ent:CollisionRulesChanged()
     ent:GetPhysicsObject():EnableMotion(false)
