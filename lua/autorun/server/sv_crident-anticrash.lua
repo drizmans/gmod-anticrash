@@ -10,6 +10,7 @@ HPP.BuildingEnts = {
 }
 HPP.ExtraEnts = {
 	["ent_money"] = true,
+	["prop_door_rotating"] = true,
 }
 HPP.ExtraEnts = table.Merge(HPP.ExtraEnts, HPP.BuildingEnts)
 HPP.Entity = FindMetaTable("Entity")
