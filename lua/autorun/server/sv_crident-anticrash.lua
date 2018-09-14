@@ -331,8 +331,8 @@ end)
 
 hook.Add( "PhysgunPickup", "HPP.PhysgunPickup", function( ply, ent )
 	if ent:IsPlayer() then return end
-	local cantouch, owner = HPP.CanTouchEnt(ent, ply)
-	if cantouch and owner then
+	local cantouch = ent:CPPICanPhysgun(ply)
+	if cantouch then
 		HPP.Ghost(ent)
 		if ent:IsConstrained() then
 			local tbl = constraint.GetAllConstrainedEntities(ent)
@@ -344,6 +344,21 @@ hook.Add( "PhysgunPickup", "HPP.PhysgunPickup", function( ply, ent )
 	else
 		return false
 	end
+end)
+
+hook.Add("PhysgunDrop", "HPP.PhysgunDrop", function(ply, ent)
+    if HPP.CanUnghost(ent, ply) then
+        HPP.Unghost(ent)
+        if ent:IsConstrained() then
+			local tbl = constraint.GetAllConstrainedEntities(ent)
+			for k, v in pairs(tbl) do
+				if ent == k then continue end
+				if HPP.CanUnghost(k, ply) then
+					HPP.Unghost(k)
+				end
+			end
+		end
+    end
 end)
 
 --[[
