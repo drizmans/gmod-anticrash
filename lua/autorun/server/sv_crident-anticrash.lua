@@ -397,7 +397,7 @@ function HPP.Phys.SetPos(phys, pos)
     HPP.Phys.SetRealPos(phys, pos)
 end
 
-
+function constraint.NoCollide() end -- Fix nocollide exploits
 
 -- Let everyone know we've loaded
 print(" > Crident anti-crash loaded")
